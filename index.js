@@ -7,9 +7,9 @@ const config = {
   // Your bot secret token
   token: '',
   // Your server ID (known as guild id)
-  guildId: '',
+  guildId: '1301889651669340270',
   // The Voice channel ID you want to bot to connect to
-  voiceChannelId: ''
+  voiceChannelId: '1301889652432834563'
 };
 
 const { token, guildId, voiceChannelId } = config;

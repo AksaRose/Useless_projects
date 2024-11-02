@@ -15,10 +15,13 @@ if (!gladiaKey) {
   );
   exit(1);
 } else {
-  console.log("using the gladia key : " + gladiaKey);
+  console.log("Using the gladia key: " + gladiaKey);
 }
 
 const gladiaUrl = "wss://api.gladia.io/audio/text/audio-transcription";
+
+// Track occurrences of "TinkerHub"
+let tinkerHubCount = 0;
 
 export function initGladiaConnection(userName) {
   const socket = new WebSocket(gladiaUrl);
@@ -31,14 +34,29 @@ export function initGladiaConnection(userName) {
           console.error(`${utterance[ERROR_KEY]}`);
           socket.close();
         } else {
-          if (utterance && utterance[TRANSCRIPTION_KEY])
+          if (utterance && utterance[TRANSCRIPTION_KEY]) {
+            const transcription = utterance[TRANSCRIPTION_KEY];
             console.log(
-              `${userName} [${utterance[TYPE_KEY]}] (${utterance[LANGUAGE_KEY]}): ${utterance[TRANSCRIPTION_KEY]}`
+              `${userName} [${utterance[TYPE_KEY]}] (${utterance[LANGUAGE_KEY]}): ${transcription}`
             );
+
+            // Count occurrences of "TinkerHub"
+            const matches = transcription.match(/\bTinker Hub\b/gi);
+            if (matches) {
+              tinkerHubCount += matches.length;
+              console.log(`"TinkerHub" mentioned ${tinkerHubCount} times.`);
+
+              // Send a message if "TinkerHub" is mentioned 5 times
+              if (tinkerHubCount >= 5) {
+                console.log("stopppp");
+                tinkerHubCount = 0; // Reset the counter if needed
+              }
+            }
+          }
         }
       }
     } else {
-      console.log("Empty ...");
+      console.log("Empty message received.");
     }
   });
 
@@ -55,7 +73,7 @@ export function initGladiaConnection(userName) {
       x_gladia_key: gladiaKey,
       language_behaviour: "automatic single language",
       sample_rate: SAMPLE_RATE,
-      // "model_type":"accurate" <- Slower but more accurate model, useful if you need precise addresses for example.
+      // "model_type": "accurate" <- Slower but more accurate model, useful if you need precise addresses for example.
     };
     socket.send(JSON.stringify(configuration));
   });
